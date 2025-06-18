@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -67,6 +68,15 @@ export default {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
+			},
+			boxShadow: {
+				'neo': '20px 20px 60px #bebebe, -20px -20px 60px #ffffff',
+				'neo-inset': 'inset 20px 20px 60px #bebebe, inset -20px -20px 60px #ffffff',
+				'neo-small': '8px 8px 16px #bebebe, -8px -8px 16px #ffffff',
+				'neo-inset-small': 'inset 8px 8px 16px #bebebe, inset -8px -8px 16px #ffffff',
+				'neo-hover': '25px 25px 75px #bebebe, -25px -25px 75px #ffffff',
+				'neo-small-hover': '12px 12px 24px #bebebe, -12px -12px 24px #ffffff',
+				'neo-inset-focus': 'inset 12px 12px 24px #bebebe, inset -12px -12px 24px #ffffff'
 			},
 			keyframes: {
 				'accordion-down': {
