@@ -1,12 +1,14 @@
 
 import React, { useState, useEffect } from 'react';
-import { Search, X, Plus, Copy, Clipboard } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import SearchResults from './SearchResults';
+import AdminSearchStringsDisplay from './AdminSearchStringsDisplay';
+import SingleNameInput from './SingleNameInput';
+import BulkNameInput from './BulkNameInput';
+import AddedNamesDisplay from './AddedNamesDisplay';
 
 interface SearchString {
   id: string;
@@ -96,13 +98,6 @@ const SearchInterface = () => {
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      addSearchName();
-    }
-  };
-
   const saveSearchToHistory = async (searchStrings: string[], searchNames: string[], resultsCount: number) => {
     try {
       await supabase
@@ -188,130 +183,31 @@ const SearchInterface = () => {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
-      {/* Admin Search Strings Display */}
-      {adminStrings.length > 0 && (
-        <div className="bg-white rounded-3xl p-8 shadow-neo">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-6">Active Search Strings</h2>
-          <p className="text-gray-600 mb-4">These admin-managed strings will be automatically combined with your search names:</p>
-          <div className="flex flex-wrap gap-2">
-            {adminStrings.map((str) => (
-              <div
-                key={str.id}
-                className="bg-blue-100 text-blue-800 px-4 py-2 rounded-2xl shadow-neo-small"
-              >
-                <span className="text-sm font-medium">{str.string_value}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      <AdminSearchStringsDisplay adminStrings={adminStrings} />
 
       {/* Search Names Section */}
       <div className="bg-white rounded-3xl p-8 shadow-neo">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-semibold text-gray-800">Search Names</h2>
-          {searchNames.length > 0 && (
-            <div className="flex gap-2">
-              <Button
-                onClick={copyNamesToClipboard}
-                variant="outline"
-                size="sm"
-                className="rounded-xl shadow-neo-small hover:shadow-neo-small-hover"
-              >
-                <Copy className="w-4 h-4 mr-2" />
-                Copy All ({searchNames.length})
-              </Button>
-              <Button
-                onClick={clearAllNames}
-                variant="outline"
-                size="sm"
-                className="rounded-xl shadow-neo-small hover:shadow-neo-small-hover text-red-600 hover:text-red-700"
-              >
-                <X className="w-4 h-4 mr-2" />
-                Clear All
-              </Button>
-            </div>
-          )}
-        </div>
+        <h2 className="text-2xl font-semibold text-gray-800 mb-6">Search Names</h2>
         
         <div className="space-y-6">
-          {/* Single Name Input */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">Add Single Name</label>
-            <div className="flex gap-2">
-              <div className="flex-1 relative">
-                <Input
-                  type="text"
-                  placeholder="Enter person/entity name and press Enter or click +"
-                  value={currentName}
-                  onChange={(e) => setCurrentName(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  className="pr-12 rounded-2xl border-0 bg-gray-50 shadow-neo-inset focus:shadow-neo-inset-focus transition-all duration-200"
-                />
-                <Button
-                  onClick={addSearchName}
-                  size="sm"
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 rounded-xl shadow-neo-small hover:shadow-neo-small-hover"
-                >
-                  <Plus className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-          </div>
+          <SingleNameInput
+            currentName={currentName}
+            setCurrentName={setCurrentName}
+            onAddName={addSearchName}
+          />
 
-          {/* Bulk Names Input */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">Add Multiple Names (Bulk)</label>
-            <div className="space-y-2">
-              <Textarea
-                placeholder="Paste multiple names here (one per line, or separated by commas/semicolons)&#10;Example:&#10;John Doe&#10;Jane Smith&#10;Company ABC"
-                value={bulkNames}
-                onChange={(e) => setBulkNames(e.target.value)}
-                className="min-h-[120px] rounded-2xl border-0 bg-gray-50 shadow-neo-inset focus:shadow-neo-inset-focus transition-all duration-200 resize-none"
-              />
-              <div className="flex gap-2">
-                <Button
-                  onClick={addBulkNames}
-                  disabled={!bulkNames.trim()}
-                  className="rounded-xl shadow-neo-small hover:shadow-neo-small-hover"
-                >
-                  <Clipboard className="w-4 h-4 mr-2" />
-                  Add Names
-                </Button>
-                <Button
-                  onClick={() => setBulkNames('')}
-                  variant="outline"
-                  disabled={!bulkNames.trim()}
-                  className="rounded-xl shadow-neo-small hover:shadow-neo-small-hover"
-                >
-                  Clear
-                </Button>
-              </div>
-            </div>
-          </div>
+          <BulkNameInput
+            bulkNames={bulkNames}
+            setBulkNames={setBulkNames}
+            onAddBulkNames={addBulkNames}
+          />
           
-          {/* Display Added Names */}
-          {searchNames.length > 0 && (
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Added Names ({searchNames.length})</label>
-              <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto p-4 bg-gray-50 rounded-2xl shadow-neo-inset">
-                {searchNames.map((name, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center gap-2 bg-green-100 text-green-800 px-4 py-2 rounded-2xl shadow-neo-small"
-                  >
-                    <span className="text-sm font-medium">{name}</span>
-                    <button
-                      onClick={() => removeSearchName(index)}
-                      className="text-green-600 hover:text-green-800 transition-colors"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+          <AddedNamesDisplay
+            searchNames={searchNames}
+            onRemoveName={removeSearchName}
+            onCopyNames={copyNamesToClipboard}
+            onClearAll={clearAllNames}
+          />
         </div>
       </div>
 
