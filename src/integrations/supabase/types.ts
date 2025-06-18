@@ -9,7 +9,72 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      search_history: {
+        Row: {
+          created_at: string
+          id: string
+          results_count: number | null
+          search_names: string[]
+          search_strings: string[]
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          results_count?: number | null
+          search_names: string[]
+          search_strings: string[]
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          results_count?: number | null
+          search_names?: string[]
+          search_strings?: string[]
+        }
+        Relationships: []
+      }
+      search_names: {
+        Row: {
+          created_at: string
+          id: string
+          name_value: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name_value: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name_value?: string
+        }
+        Relationships: []
+      }
+      search_strings: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          string_value: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          string_value: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          string_value?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
