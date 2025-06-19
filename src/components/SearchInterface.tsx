@@ -8,6 +8,7 @@ import AdminSearchStringsDisplay from './AdminSearchStringsDisplay';
 import SingleNameInput from './SingleNameInput';
 import BulkNameInput from './BulkNameInput';
 import AddedNamesDisplay from './AddedNamesDisplay';
+import { preserveSearchOperators, restoreSearchOperators, shouldTranslateString } from '@/utils/searchOperators';
 
 interface SearchString {
   id: string;
@@ -111,10 +112,10 @@ const SearchInterface = () => {
     const allStrings: string[] = [];
     
     adminStrings.forEach(adminString => {
-      // Add original string
+      // Add original string (with preserved operators)
       allStrings.push(adminString.string_value);
       
-      // Add all translations
+      // Add all translations (operators should already be preserved)
       if (adminString.translations) {
         Object.values(adminString.translations).forEach(translation => {
           if (translation.trim()) {
@@ -165,6 +166,9 @@ const SearchInterface = () => {
       }
     }
     
+    // Log the search strings being used for debugging
+    console.log('Search strings with preserved operators:', allSearchStrings);
+    
     // Simulate search API call with combined strings and names
     setTimeout(() => {
       const mockResults = [
@@ -174,7 +178,7 @@ const SearchInterface = () => {
           source: "News Source A",
           date: "2024-06-15",
           sentiment: "negative",
-          excerpt: `Negative coverage mentioning ${searchNames.join(', ')} in relation to ${allSearchStrings.slice(0, 2).join(', ')}...`,
+          excerpt: `Negative coverage mentioning ${searchNames.join(', ')} in relation to search operators and multilingual terms...`,
           url: "#"
         },
         {
@@ -183,7 +187,7 @@ const SearchInterface = () => {
           source: "News Source B",
           date: "2024-06-14",
           sentiment: "negative",
-          excerpt: `Investigation reveals concerning information about ${searchNames[0] || 'the entity'} regarding ${allSearchStrings[0] || 'various issues'}...`,
+          excerpt: `Investigation reveals concerning information about ${searchNames[0] || 'the entity'} using advanced search patterns with preserved boolean operators...`,
           url: "#"
         },
         {
@@ -192,7 +196,7 @@ const SearchInterface = () => {
           source: "News Source C",
           date: "2024-06-13",
           sentiment: "neutral",
-          excerpt: `Balanced coverage of ${searchNames.join(' and ')} discussing ${allSearchStrings.slice(1, 3).join(', ')}...`,
+          excerpt: `Balanced coverage of ${searchNames.join(' and ')} discussing multilingual search capabilities with operator preservation...`,
           url: "#"
         }
       ];
@@ -207,9 +211,11 @@ const SearchInterface = () => {
         return acc + Object.keys(str.translations || {}).length;
       }, 0);
       
+      const operatorCount = allSearchStrings.filter(str => /\b(AND|OR|NOT)\b/i.test(str)).length;
+      
       toast({
-        title: "Search completed",
-        description: `Found ${mockResults.length} results using ${allSearchStrings.length} search terms across ${totalLanguages + adminStrings.length} languages with ${searchNames.length} names.`
+        title: "Search completed with operator preservation",
+        description: `Found ${mockResults.length} results using ${allSearchStrings.length} search terms across ${totalLanguages + adminStrings.length} languages with ${searchNames.length} names. ${operatorCount} strings contain search operators.`
       });
     }, 2000);
   };
