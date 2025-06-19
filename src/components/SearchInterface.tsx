@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -13,6 +12,7 @@ import AddedNamesDisplay from './AddedNamesDisplay';
 interface SearchString {
   id: string;
   string_value: string;
+  translations: Record<string, string>;
   is_active: boolean;
 }
 
@@ -37,7 +37,14 @@ const SearchInterface = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setAdminStrings(data || []);
+      
+      // Parse translations JSON if it exists
+      const processedData = data?.map(item => ({
+        ...item,
+        translations: item.translations || {}
+      })) || [];
+      
+      setAdminStrings(processedData);
     } catch (error) {
       console.error('Error fetching admin search strings:', error);
     }
@@ -98,6 +105,26 @@ const SearchInterface = () => {
     }
   };
 
+  const getAllSearchStrings = () => {
+    const allStrings: string[] = [];
+    
+    adminStrings.forEach(adminString => {
+      // Add original string
+      allStrings.push(adminString.string_value);
+      
+      // Add all translations
+      if (adminString.translations) {
+        Object.values(adminString.translations).forEach(translation => {
+          if (translation.trim()) {
+            allStrings.push(translation);
+          }
+        });
+      }
+    });
+    
+    return allStrings;
+  };
+
   const saveSearchToHistory = async (searchStrings: string[], searchNames: string[], resultsCount: number) => {
     try {
       await supabase
@@ -113,9 +140,9 @@ const SearchInterface = () => {
   };
 
   const performSearch = async () => {
-    const activeAdminStrings = adminStrings.map(s => s.string_value);
+    const allSearchStrings = getAllSearchStrings();
     
-    if (activeAdminStrings.length === 0 && searchNames.length === 0) {
+    if (allSearchStrings.length === 0 && searchNames.length === 0) {
       toast({
         title: "Search criteria required",
         description: "Please add at least one search name, or ask admin to add search strings.",
@@ -145,7 +172,7 @@ const SearchInterface = () => {
           source: "News Source A",
           date: "2024-06-15",
           sentiment: "negative",
-          excerpt: `Negative coverage mentioning ${searchNames.join(', ')} in relation to ${activeAdminStrings.slice(0, 2).join(', ')}...`,
+          excerpt: `Negative coverage mentioning ${searchNames.join(', ')} in relation to ${allSearchStrings.slice(0, 2).join(', ')}...`,
           url: "#"
         },
         {
@@ -154,7 +181,7 @@ const SearchInterface = () => {
           source: "News Source B",
           date: "2024-06-14",
           sentiment: "negative",
-          excerpt: `Investigation reveals concerning information about ${searchNames[0] || 'the entity'} regarding ${activeAdminStrings[0] || 'various issues'}...`,
+          excerpt: `Investigation reveals concerning information about ${searchNames[0] || 'the entity'} regarding ${allSearchStrings[0] || 'various issues'}...`,
           url: "#"
         },
         {
@@ -163,7 +190,7 @@ const SearchInterface = () => {
           source: "News Source C",
           date: "2024-06-13",
           sentiment: "neutral",
-          excerpt: `Balanced coverage of ${searchNames.join(' and ')} discussing ${activeAdminStrings.slice(1, 3).join(', ')}...`,
+          excerpt: `Balanced coverage of ${searchNames.join(' and ')} discussing ${allSearchStrings.slice(1, 3).join(', ')}...`,
           url: "#"
         }
       ];
@@ -172,11 +199,15 @@ const SearchInterface = () => {
       setIsSearching(false);
       
       // Save search history
-      saveSearchToHistory(activeAdminStrings, searchNames, mockResults.length);
+      saveSearchToHistory(allSearchStrings, searchNames, mockResults.length);
+      
+      const totalLanguages = adminStrings.reduce((acc, str) => {
+        return acc + Object.keys(str.translations || {}).length;
+      }, 0);
       
       toast({
         title: "Search completed",
-        description: `Found ${mockResults.length} results combining ${activeAdminStrings.length} admin strings with ${searchNames.length} names.`
+        description: `Found ${mockResults.length} results using ${allSearchStrings.length} search terms across ${totalLanguages + adminStrings.length} languages with ${searchNames.length} names.`
       });
     }, 2000);
   };

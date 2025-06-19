@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { Plus, X, Edit2, Save, Trash2 } from 'lucide-react';
+import { Plus, X, Edit2, Save, Trash2, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
@@ -9,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 interface SearchString {
   id: string;
   string_value: string;
+  translations: Record<string, string>;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -19,7 +19,12 @@ const AdminDashboard = () => {
   const [newString, setNewString] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingValue, setEditingValue] = useState('');
+  const [editingTranslations, setEditingTranslations] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [newTranslationLang, setNewTranslationLang] = useState('');
+  const [newTranslationValue, setNewTranslationValue] = useState('');
+
+  const commonLanguages = ['es', 'fr', 'de', 'it', 'pt', 'ru', 'zh', 'ja', 'ko', 'ar'];
 
   useEffect(() => {
     fetchSearchStrings();
@@ -34,7 +39,14 @@ const AdminDashboard = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setSearchStrings(data || []);
+      
+      // Parse translations JSON if it exists
+      const processedData = data?.map(item => ({
+        ...item,
+        translations: item.translations || {}
+      })) || [];
+      
+      setSearchStrings(processedData);
     } catch (error) {
       console.error('Error fetching search strings:', error);
       toast({
@@ -53,13 +65,16 @@ const AdminDashboard = () => {
     try {
       const { data, error } = await supabase
         .from('search_strings')
-        .insert([{ string_value: newString.trim() }])
+        .insert([{ 
+          string_value: newString.trim(),
+          translations: {}
+        }])
         .select()
         .single();
 
       if (error) throw error;
 
-      setSearchStrings([data, ...searchStrings]);
+      setSearchStrings([{ ...data, translations: {} }, ...searchStrings]);
       setNewString('');
       toast({
         title: "Success",
@@ -75,12 +90,13 @@ const AdminDashboard = () => {
     }
   };
 
-  const updateSearchString = async (id: string, newValue: string) => {
+  const updateSearchString = async (id: string, newValue: string, translations: Record<string, string>) => {
     try {
       const { error } = await supabase
         .from('search_strings')
         .update({ 
           string_value: newValue.trim(),
+          translations: translations,
           updated_at: new Date().toISOString()
         })
         .eq('id', id);
@@ -89,11 +105,12 @@ const AdminDashboard = () => {
 
       setSearchStrings(searchStrings.map(str => 
         str.id === id 
-          ? { ...str, string_value: newValue.trim(), updated_at: new Date().toISOString() }
+          ? { ...str, string_value: newValue.trim(), translations, updated_at: new Date().toISOString() }
           : str
       ));
       setEditingId(null);
       setEditingValue('');
+      setEditingTranslations({});
       toast({
         title: "Success",
         description: "Search string updated successfully"
@@ -163,14 +180,33 @@ const AdminDashboard = () => {
     }
   };
 
-  const startEditing = (id: string, value: string) => {
+  const startEditing = (id: string, value: string, translations: Record<string, string>) => {
     setEditingId(id);
     setEditingValue(value);
+    setEditingTranslations({ ...translations });
   };
 
   const cancelEditing = () => {
     setEditingId(null);
     setEditingValue('');
+    setEditingTranslations({});
+  };
+
+  const addTranslation = () => {
+    if (newTranslationLang.trim() && newTranslationValue.trim()) {
+      setEditingTranslations({
+        ...editingTranslations,
+        [newTranslationLang.toLowerCase()]: newTranslationValue.trim()
+      });
+      setNewTranslationLang('');
+      setNewTranslationValue('');
+    }
+  };
+
+  const removeTranslation = (lang: string) => {
+    const updatedTranslations = { ...editingTranslations };
+    delete updatedTranslations[lang];
+    setEditingTranslations(updatedTranslations);
   };
 
   return (
@@ -178,7 +214,7 @@ const AdminDashboard = () => {
       <div className="bg-white rounded-3xl p-8 shadow-neo">
         <h1 className="text-3xl font-bold text-gray-800 mb-6">Admin Dashboard</h1>
         <p className="text-gray-600 mb-8">
-          Manage search strings that will be automatically combined with user-entered names in searches.
+          Manage search strings with translations that will be automatically combined with user-entered names in searches.
         </p>
 
         {/* Add New String */}
@@ -225,67 +261,138 @@ const AdminDashboard = () => {
               {searchStrings.map((string) => (
                 <div
                   key={string.id}
-                  className={`flex items-center gap-4 p-4 rounded-2xl shadow-neo-small ${
+                  className={`p-4 rounded-2xl shadow-neo-small ${
                     string.is_active ? 'bg-green-50' : 'bg-gray-50'
                   }`}
                 >
-                  <div className="flex-1">
-                    {editingId === string.id ? (
+                  {editingId === string.id ? (
+                    <div className="space-y-4">
                       <Input
                         type="text"
                         value={editingValue}
                         onChange={(e) => setEditingValue(e.target.value)}
-                        onKeyPress={(e) => {
-                          if (e.key === 'Enter') {
-                            updateSearchString(string.id, editingValue);
-                          } else if (e.key === 'Escape') {
-                            cancelEditing();
-                          }
-                        }}
+                        placeholder="Original string"
                         className="rounded-xl border-0 bg-white shadow-neo-inset"
                         autoFocus
                       />
-                    ) : (
-                      <div className="flex items-center gap-3">
-                        <span className={`text-sm font-medium ${
-                          string.is_active ? 'text-gray-800' : 'text-gray-500'
-                        }`}>
-                          {string.string_value}
-                        </span>
-                        <span className={`px-2 py-1 rounded-lg text-xs font-medium ${
-                          string.is_active 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-gray-200 text-gray-600'
-                        }`}>
-                          {string.is_active ? 'Active' : 'Inactive'}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="flex items-center gap-2">
-                    {editingId === string.id ? (
-                      <>
+                      
+                      {/* Existing Translations */}
+                      {Object.entries(editingTranslations).length > 0 && (
+                        <div className="space-y-2">
+                          <h4 className="text-sm font-medium text-gray-700">Translations:</h4>
+                          {Object.entries(editingTranslations).map(([lang, translation]) => (
+                            <div key={lang} className="flex items-center gap-2">
+                              <span className="text-xs bg-gray-200 px-2 py-1 rounded">{lang.toUpperCase()}</span>
+                              <Input
+                                type="text"
+                                value={translation}
+                                onChange={(e) => setEditingTranslations({
+                                  ...editingTranslations,
+                                  [lang]: e.target.value
+                                })}
+                                className="flex-1 rounded-xl border-0 bg-white shadow-neo-inset"
+                              />
+                              <Button
+                                onClick={() => removeTranslation(lang)}
+                                variant="outline"
+                                size="sm"
+                                className="rounded-xl"
+                              >
+                                <X className="w-3 h-3" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      
+                      {/* Add New Translation */}
+                      <div className="flex gap-2">
+                        <select
+                          value={newTranslationLang}
+                          onChange={(e) => setNewTranslationLang(e.target.value)}
+                          className="px-3 py-2 rounded-xl border-0 bg-white shadow-neo-inset"
+                        >
+                          <option value="">Select language</option>
+                          {commonLanguages.map(lang => (
+                            <option key={lang} value={lang}>{lang.toUpperCase()}</option>
+                          ))}
+                        </select>
+                        <Input
+                          type="text"
+                          placeholder="Translation"
+                          value={newTranslationValue}
+                          onChange={(e) => setNewTranslationValue(e.target.value)}
+                          className="flex-1 rounded-xl border-0 bg-white shadow-neo-inset"
+                        />
                         <Button
-                          onClick={() => updateSearchString(string.id, editingValue)}
+                          onClick={addTranslation}
+                          disabled={!newTranslationLang || !newTranslationValue.trim()}
                           size="sm"
+                          className="rounded-xl"
+                        >
+                          <Plus className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={() => updateSearchString(string.id, editingValue, editingTranslations)}
                           className="rounded-xl shadow-neo-small hover:shadow-neo-small-hover"
                         >
-                          <Save className="w-4 h-4" />
+                          <Save className="w-4 h-4 mr-2" />
+                          Save
                         </Button>
                         <Button
                           onClick={cancelEditing}
                           variant="outline"
-                          size="sm"
                           className="rounded-xl shadow-neo-small hover:shadow-neo-small-hover"
                         >
-                          <X className="w-4 h-4" />
+                          <X className="w-4 h-4 mr-2" />
+                          Cancel
                         </Button>
-                      </>
-                    ) : (
-                      <>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <span className={`text-sm font-medium ${
+                            string.is_active ? 'text-gray-800' : 'text-gray-500'
+                          }`}>
+                            {string.string_value}
+                          </span>
+                          <span className={`px-2 py-1 rounded-lg text-xs font-medium ${
+                            string.is_active 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-gray-200 text-gray-600'
+                          }`}>
+                            {string.is_active ? 'Active' : 'Inactive'}
+                          </span>
+                          {Object.keys(string.translations || {}).length > 0 && (
+                            <span className="flex items-center gap-1 text-xs text-blue-600">
+                              <Globe className="w-3 h-3" />
+                              {Object.keys(string.translations).length} translations
+                            </span>
+                          )}
+                        </div>
+                        
+                        {string.translations && Object.keys(string.translations).length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-2">
+                            {Object.entries(string.translations).map(([lang, translation]) => (
+                              <span
+                                key={lang}
+                                className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded"
+                              >
+                                {lang.toUpperCase()}: {translation}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="flex items-center gap-2 ml-4">
                         <Button
-                          onClick={() => startEditing(string.id, string.string_value)}
+                          onClick={() => startEditing(string.id, string.string_value, string.translations || {})}
                           variant="outline"
                           size="sm"
                           className="rounded-xl shadow-neo-small hover:shadow-neo-small-hover"
@@ -308,9 +415,9 @@ const AdminDashboard = () => {
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
-                      </>
-                    )}
-                  </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
