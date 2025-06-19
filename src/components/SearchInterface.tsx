@@ -38,10 +38,12 @@ const SearchInterface = () => {
 
       if (error) throw error;
       
-      // Parse translations JSON if it exists
+      // Process the data to ensure translations is properly typed
       const processedData = data?.map(item => ({
         ...item,
-        translations: item.translations || {}
+        translations: (item.translations && typeof item.translations === 'object' && !Array.isArray(item.translations)) 
+          ? item.translations as Record<string, string>
+          : {}
       })) || [];
       
       setAdminStrings(processedData);
