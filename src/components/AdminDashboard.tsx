@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -229,7 +230,12 @@ const AdminDashboard = () => {
                 {searchString.string_value}
               </h3>
               {hasOperators && (
-                <AlertCircle className="w-4 h-4 text-amber-500" title="Contains search operators" />
+                <div className="relative group">
+                  <AlertCircle className="w-4 h-4 text-amber-500" />
+                  <div className="absolute left-0 top-6 bg-black text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                    Contains search operators
+                  </div>
+                </div>
               )}
             </div>
             <p className="text-sm text-gray-500">
@@ -259,7 +265,12 @@ const AdminDashboard = () => {
                         {AVAILABLE_LANGUAGES.find(l => l.code === langCode)?.name || langCode}:
                       </span>
                       {/\b(AND|OR|NOT)\b/i.test(translation) && (
-                        <AlertCircle className="w-3 h-3 text-amber-500" title="Contains search operators" />
+                        <div className="relative group">
+                          <AlertCircle className="w-3 h-3 text-amber-500" />
+                          <div className="absolute left-0 top-4 bg-black text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                            Contains search operators
+                          </div>
+                        </div>
                       )}
                     </div>
                     <span className="text-gray-600">{translation}</span>
