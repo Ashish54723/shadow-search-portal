@@ -48,8 +48,11 @@ const SearchInterface = () => {
 
       <SearchButton onSearch={performSearch} isSearching={isSearching} />
 
-      {searchResults.length > 0 && (
-        <SearchResults results={searchResults} />
+      {searchResults && (
+        <SearchResults 
+          searchStrings={searchResults.searchStrings}
+          searchNames={searchResults.searchNames}
+        />
       )}
     </div>
   );

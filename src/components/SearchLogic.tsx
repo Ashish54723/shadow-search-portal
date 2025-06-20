@@ -10,12 +10,17 @@ interface SearchString {
   is_active: boolean;
 }
 
+interface SearchResultData {
+  searchStrings: string[];
+  searchNames: string[];
+}
+
 export const useSearchLogic = () => {
   const [searchNames, setSearchNames] = useState<string[]>([]);
   const [currentName, setCurrentName] = useState('');
   const [bulkNames, setBulkNames] = useState('');
   const [isSearching, setIsSearching] = useState(false);
-  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchResults, setSearchResults] = useState<SearchResultData | null>(null);
   const [adminStrings, setAdminStrings] = useState<SearchString[]>([]);
 
   const fetchAdminSearchStrings = async () => {
@@ -114,14 +119,14 @@ export const useSearchLogic = () => {
     return allStrings;
   };
 
-  const saveSearchToHistory = async (searchStrings: string[], searchNames: string[], resultsCount: number) => {
+  const saveSearchToHistory = async (searchStrings: string[], searchNames: string[]) => {
     try {
       await supabase
         .from('search_history')
         .insert([{
           search_strings: searchStrings,
           search_names: searchNames,
-          results_count: resultsCount
+          results_count: 0
         }]);
     } catch (error) {
       console.error('Error saving search history:', error);
@@ -154,40 +159,15 @@ export const useSearchLogic = () => {
     console.log('Search strings with preserved operators:', allSearchStrings);
     
     setTimeout(() => {
-      const mockResults = [
-        {
-          id: 1,
-          title: "Sample Negative Article about Searched Entity",
-          source: "News Source A",
-          date: "2024-06-15",
-          sentiment: "negative",
-          excerpt: `Negative coverage mentioning ${searchNames.join(', ')} in relation to search operators and multilingual terms...`,
-          url: "#"
-        },
-        {
-          id: 2,
-          title: "Critical Report on Recent Developments",
-          source: "News Source B",
-          date: "2024-06-14",
-          sentiment: "negative",
-          excerpt: `Investigation reveals concerning information about ${searchNames[0] || 'the entity'} using advanced search patterns with preserved boolean operators...`,
-          url: "#"
-        },
-        {
-          id: 3,
-          title: "Neutral Analysis of Current Situation",
-          source: "News Source C",
-          date: "2024-06-13",
-          sentiment: "neutral",
-          excerpt: `Balanced coverage of ${searchNames.join(' and ')} discussing multilingual search capabilities with operator preservation...`,
-          url: "#"
-        }
-      ];
+      const searchResultData: SearchResultData = {
+        searchStrings: allSearchStrings,
+        searchNames: searchNames
+      };
       
-      setSearchResults(mockResults);
+      setSearchResults(searchResultData);
       setIsSearching(false);
       
-      saveSearchToHistory(allSearchStrings, searchNames, mockResults.length);
+      saveSearchToHistory(allSearchStrings, searchNames);
       
       const totalLanguages = adminStrings.reduce((acc, str) => {
         return acc + Object.keys(str.translations || {}).length;
@@ -196,10 +176,10 @@ export const useSearchLogic = () => {
       const operatorCount = allSearchStrings.filter(str => /\b(AND|OR|NOT)\b/i.test(str)).length;
       
       toast({
-        title: "Search completed with operator preservation",
-        description: `Found ${mockResults.length} results using ${allSearchStrings.length} search terms across ${totalLanguages + adminStrings.length} languages with ${searchNames.length} names. ${operatorCount} strings contain search operators.`
+        title: "Search prepared",
+        description: `Prepared Google searches using ${allSearchStrings.length} search terms across ${totalLanguages + adminStrings.length} languages with ${searchNames.length} names. ${operatorCount} strings contain search operators.`
       });
-    }, 2000);
+    }, 1000);
   };
 
   return {
