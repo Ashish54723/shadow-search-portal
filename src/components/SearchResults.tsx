@@ -1,8 +1,6 @@
 
 import React, { useEffect } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ExternalLink, Search } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 
 interface SearchResultsProps {
   searchStrings: string[];
@@ -21,139 +19,124 @@ const SearchResults = ({ searchStrings, searchNames }: SearchResultsProps) => {
     return createGoogleSearchUrl(combinedQuery);
   };
 
-  // Auto-open the first combined search when results are ready
+  // Auto-open all search combinations when results are ready
   useEffect(() => {
     if (searchStrings.length > 0) {
-      const firstSearchString = searchStrings[0];
-      const autoSearchUrl = createCombinedSearchUrl(firstSearchString, searchNames);
-      window.open(autoSearchUrl, '_blank');
+      const allSearchUrls: string[] = [];
+      
+      // Combined searches (string + all names)
+      searchStrings.forEach(searchString => {
+        const combinedUrl = createCombinedSearchUrl(searchString, searchNames);
+        allSearchUrls.push(combinedUrl);
+      });
+      
+      // Individual string + name combinations
+      if (searchNames.length > 0) {
+        searchStrings.forEach(searchString => {
+          searchNames.forEach(name => {
+            const individualUrl = createGoogleSearchUrl(`${searchString} ${name}`);
+            allSearchUrls.push(individualUrl);
+          });
+        });
+      }
+      
+      // Strings only
+      searchStrings.forEach(searchString => {
+        const stringOnlyUrl = createGoogleSearchUrl(searchString);
+        allSearchUrls.push(stringOnlyUrl);
+      });
+      
+      // Names only
+      searchNames.forEach(name => {
+        const nameOnlyUrl = createGoogleSearchUrl(name);
+        allSearchUrls.push(nameOnlyUrl);
+      });
+      
+      // Open all tabs with a small delay to prevent browser blocking
+      allSearchUrls.forEach((url, index) => {
+        setTimeout(() => {
+          window.open(url, '_blank');
+        }, index * 100); // 100ms delay between each tab
+      });
     }
   }, [searchStrings, searchNames]);
 
+  const getTotalSearchCount = () => {
+    let count = 0;
+    
+    // Combined searches
+    count += searchStrings.length;
+    
+    // Individual combinations
+    if (searchNames.length > 0) {
+      count += searchStrings.length * searchNames.length;
+    }
+    
+    // Strings only
+    count += searchStrings.length;
+    
+    // Names only
+    count += searchNames.length;
+    
+    return count;
+  };
+
   return (
     <div className="bg-white rounded-3xl p-8 shadow-neo">
-      <h2 className="text-2xl font-semibold text-gray-800 mb-6">
-        Google Search Results
-      </h2>
-      
-      <Tabs defaultValue="combined" className="w-full">
-        <TabsList className="grid w-full grid-cols-4 mb-6">
-          <TabsTrigger value="combined">Combined Search</TabsTrigger>
-          <TabsTrigger value="strings">Search Strings</TabsTrigger>
-          <TabsTrigger value="names">Names Only</TabsTrigger>
-          <TabsTrigger value="individual">Individual</TabsTrigger>
-        </TabsList>
+      <div className="text-center">
+        <div className="flex items-center justify-center mb-4">
+          <Search className="w-8 h-8 text-blue-500 mr-3" />
+          <h2 className="text-2xl font-semibold text-gray-800">
+            Google Searches Opened
+          </h2>
+        </div>
+        
+        <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-6 mb-6">
+          <div className="text-4xl font-bold text-blue-600 mb-2">
+            {getTotalSearchCount()}
+          </div>
+          <p className="text-gray-600">
+            Google search tabs opened automatically
+          </p>
+        </div>
 
-        <TabsContent value="combined" className="space-y-4">
-          <div className="bg-gray-50 rounded-2xl p-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Combined Search</h3>
-            <p className="text-gray-600 mb-4">Search all strings combined with all names</p>
-            {searchStrings.map((searchString, index) => {
-              const combinedQuery = searchNames.length > 0 
-                ? `${searchString} (${searchNames.join(' OR ')})`
-                : searchString;
-              return (
-                <div key={index} className="mb-4 p-4 bg-white rounded-xl border">
-                  <p className="text-sm text-gray-600 mb-2">
-                    Query: {combinedQuery}
-                  </p>
-                  <Button
-                    onClick={() => window.open(createCombinedSearchUrl(searchString, searchNames), '_blank')}
-                    className="w-full rounded-xl shadow-neo-small hover:shadow-neo-small-hover"
-                  >
-                    <Search className="w-4 h-4 mr-2" />
-                    Search on Google
-                    <ExternalLink className="w-4 h-4 ml-2" />
-                  </Button>
+        <div className="grid md:grid-cols-2 gap-6">
+          <div className="bg-gray-50 rounded-2xl p-4">
+            <h3 className="font-semibold text-gray-800 mb-2">Search Strings Used</h3>
+            <div className="text-sm text-gray-600 space-y-1">
+              {searchStrings.map((string, index) => (
+                <div key={index} className="bg-white rounded-lg p-2">
+                  {string}
                 </div>
-              );
-            })}
+              ))}
+            </div>
           </div>
-        </TabsContent>
 
-        <TabsContent value="strings" className="space-y-4">
-          <div className="bg-gray-50 rounded-2xl p-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Search Strings Only</h3>
-            <p className="text-gray-600 mb-4">Search each string individually</p>
-            {searchStrings.map((searchString, index) => (
-              <div key={index} className="mb-4 p-4 bg-white rounded-xl border">
-                <p className="text-sm text-gray-600 mb-2">Query: {searchString}</p>
-                <Button
-                  onClick={() => window.open(createGoogleSearchUrl(searchString), '_blank')}
-                  className="w-full rounded-xl shadow-neo-small hover:shadow-neo-small-hover"
-                >
-                  <Search className="w-4 h-4 mr-2" />
-                  Search on Google
-                  <ExternalLink className="w-4 h-4 ml-2" />
-                </Button>
-              </div>
-            ))}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="names" className="space-y-4">
-          <div className="bg-gray-50 rounded-2xl p-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Names Only</h3>
-            <p className="text-gray-600 mb-4">Search each name individually</p>
-            {searchNames.map((name, index) => (
-              <div key={index} className="mb-4 p-4 bg-white rounded-xl border">
-                <p className="text-sm text-gray-600 mb-2">Query: {name}</p>
-                <Button
-                  onClick={() => window.open(createGoogleSearchUrl(name), '_blank')}
-                  className="w-full rounded-xl shadow-neo-small hover:shadow-neo-small-hover"
-                >
-                  <Search className="w-4 h-4 mr-2" />
-                  Search on Google
-                  <ExternalLink className="w-4 h-4 ml-2" />
-                </Button>
-              </div>
-            ))}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="individual" className="space-y-4">
-          <div className="bg-gray-50 rounded-2xl p-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Individual Combinations</h3>
-            <p className="text-gray-600 mb-4">Each string combined with each name</p>
-            {searchStrings.map((searchString, stringIndex) => (
-              <div key={stringIndex} className="mb-6">
-                <h4 className="font-medium text-gray-700 mb-3">String: {searchString}</h4>
-                {searchNames.length > 0 ? (
-                  searchNames.map((name, nameIndex) => (
-                    <div key={nameIndex} className="mb-3 p-4 bg-white rounded-xl border">
-                      <p className="text-sm text-gray-600 mb-2">
-                        Query: {searchString} {name}
-                      </p>
-                      <Button
-                        onClick={() => window.open(createGoogleSearchUrl(`${searchString} ${name}`), '_blank')}
-                        className="w-full rounded-xl shadow-neo-small hover:shadow-neo-small-hover"
-                      >
-                        <Search className="w-4 h-4 mr-2" />
-                        Search on Google
-                        <ExternalLink className="w-4 h-4 ml-2" />
-                      </Button>
-                    </div>
-                  ))
-                ) : (
-                  <div className="p-4 bg-white rounded-xl border">
-                    <p className="text-sm text-gray-600 mb-2">
-                      Query: {searchString}
-                    </p>
-                    <Button
-                      onClick={() => window.open(createGoogleSearchUrl(searchString), '_blank')}
-                      className="w-full rounded-xl shadow-neo-small hover:shadow-neo-small-hover"
-                    >
-                      <Search className="w-4 h-4 mr-2" />
-                      Search on Google
-                      <ExternalLink className="w-4 h-4 ml-2" />
-                    </Button>
+          <div className="bg-gray-50 rounded-2xl p-4">
+            <h3 className="font-semibold text-gray-800 mb-2">Names Used</h3>
+            <div className="text-sm text-gray-600 space-y-1">
+              {searchNames.length > 0 ? (
+                searchNames.map((name, index) => (
+                  <div key={index} className="bg-white rounded-lg p-2">
+                    {name}
                   </div>
-                )}
-              </div>
-            ))}
+                ))
+              ) : (
+                <div className="text-gray-400 italic">No names added</div>
+              )}
+            </div>
           </div>
-        </TabsContent>
-      </Tabs>
+        </div>
+
+        <div className="mt-6 p-4 bg-blue-50 rounded-xl">
+          <div className="flex items-center justify-center text-blue-700">
+            <ExternalLink className="w-4 h-4 mr-2" />
+            <span className="text-sm">
+              All search combinations have been opened in new browser tabs
+            </span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
