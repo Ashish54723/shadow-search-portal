@@ -1,6 +1,8 @@
 
-import React, { useEffect } from 'react';
-import { ExternalLink, Search } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { ExternalLink, Search, Copy } from 'lucide-react';
+import { Button } from './ui/button';
+import { toast } from '@/hooks/use-toast';
 
 interface SearchResultsProps {
   searchStrings: string[];
@@ -8,6 +10,8 @@ interface SearchResultsProps {
 }
 
 const SearchResults = ({ searchStrings, searchNames }: SearchResultsProps) => {
+  const [allSearchUrls, setAllSearchUrls] = useState<string[]>([]);
+
   const createGoogleSearchUrl = (query: string) => {
     return `https://www.google.com/search?q=${encodeURIComponent(query)}`;
   };
@@ -22,12 +26,12 @@ const SearchResults = ({ searchStrings, searchNames }: SearchResultsProps) => {
   // Auto-open all search combinations when results are ready
   useEffect(() => {
     if (searchStrings.length > 0) {
-      const allSearchUrls: string[] = [];
+      const searchUrls: string[] = [];
       
       // Combined searches (string + all names)
       searchStrings.forEach(searchString => {
         const combinedUrl = createCombinedSearchUrl(searchString, searchNames);
-        allSearchUrls.push(combinedUrl);
+        searchUrls.push(combinedUrl);
       });
       
       // Individual string + name combinations
@@ -35,7 +39,7 @@ const SearchResults = ({ searchStrings, searchNames }: SearchResultsProps) => {
         searchStrings.forEach(searchString => {
           searchNames.forEach(name => {
             const individualUrl = createGoogleSearchUrl(`${searchString} ${name}`);
-            allSearchUrls.push(individualUrl);
+            searchUrls.push(individualUrl);
           });
         });
       }
@@ -43,17 +47,19 @@ const SearchResults = ({ searchStrings, searchNames }: SearchResultsProps) => {
       // Strings only
       searchStrings.forEach(searchString => {
         const stringOnlyUrl = createGoogleSearchUrl(searchString);
-        allSearchUrls.push(stringOnlyUrl);
+        searchUrls.push(stringOnlyUrl);
       });
       
       // Names only
       searchNames.forEach(name => {
         const nameOnlyUrl = createGoogleSearchUrl(name);
-        allSearchUrls.push(nameOnlyUrl);
+        searchUrls.push(nameOnlyUrl);
       });
       
+      setAllSearchUrls(searchUrls);
+      
       // Open all tabs with a small delay to prevent browser blocking
-      allSearchUrls.forEach((url, index) => {
+      searchUrls.forEach((url, index) => {
         setTimeout(() => {
           window.open(url, '_blank');
         }, index * 100); // 100ms delay between each tab
@@ -81,6 +87,24 @@ const SearchResults = ({ searchStrings, searchNames }: SearchResultsProps) => {
     return count;
   };
 
+  const copyUrlsToClipboard = async () => {
+    if (allSearchUrls.length > 0) {
+      try {
+        await navigator.clipboard.writeText(allSearchUrls.join('\n'));
+        toast({
+          title: "URLs copied to clipboard",
+          description: `Copied ${allSearchUrls.length} search URLs to clipboard.`
+        });
+      } catch (error) {
+        toast({
+          title: "Copy failed",
+          description: "Failed to copy URLs to clipboard.",
+          variant: "destructive"
+        });
+      }
+    }
+  };
+
   return (
     <div className="bg-white rounded-3xl p-8 shadow-neo">
       <div className="text-center">
@@ -98,6 +122,16 @@ const SearchResults = ({ searchStrings, searchNames }: SearchResultsProps) => {
           <p className="text-gray-600">
             Google search tabs opened automatically
           </p>
+        </div>
+
+        <div className="mb-6">
+          <Button
+            onClick={copyUrlsToClipboard}
+            className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg flex items-center gap-2 mx-auto"
+          >
+            <Copy className="w-4 h-4" />
+            Copy All URLs
+          </Button>
         </div>
 
         <div className="grid md:grid-cols-2 gap-6">
