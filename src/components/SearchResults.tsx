@@ -1,6 +1,5 @@
-
 import React, { useEffect, useState } from 'react';
-import { ExternalLink, Search, Copy } from 'lucide-react';
+import { ExternalLink, Search, Copy, FileText } from 'lucide-react';
 import { Button } from './ui/button';
 import { toast } from '@/hooks/use-toast';
 
@@ -11,6 +10,7 @@ interface SearchResultsProps {
 
 const SearchResults = ({ searchStrings, searchNames }: SearchResultsProps) => {
   const [allSearchUrls, setAllSearchUrls] = useState<string[]>([]);
+  const [isGeneratingPDFs, setIsGeneratingPDFs] = useState(false);
 
   const createGoogleSearchUrl = (query: string) => {
     return `https://www.google.com/search?q=${encodeURIComponent(query)}`;
@@ -105,6 +105,56 @@ const SearchResults = ({ searchStrings, searchNames }: SearchResultsProps) => {
     }
   };
 
+  const generatePDFsFromTabs = async () => {
+    if (allSearchUrls.length === 0) {
+      toast({
+        title: "No URLs available",
+        description: "Please perform a search first to generate PDFs.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsGeneratingPDFs(true);
+    
+    try {
+      // Use the browser's print functionality to generate PDFs
+      const printPromises = allSearchUrls.map((url, index) => {
+        return new Promise<void>((resolve) => {
+          // Open each URL in a new window for printing
+          const printWindow = window.open(url, `search_${index}`, 'width=1200,height=800');
+          
+          if (printWindow) {
+            printWindow.addEventListener('load', () => {
+              setTimeout(() => {
+                // Trigger print dialog for each window
+                printWindow.print();
+                resolve();
+              }, 2000); // Wait for page to fully load
+            });
+          } else {
+            resolve();
+          }
+        });
+      });
+
+      await Promise.all(printPromises);
+      
+      toast({
+        title: "PDF generation initiated",
+        description: `Print dialogs opened for ${allSearchUrls.length} search results. Use your browser's print-to-PDF option.`
+      });
+    } catch (error) {
+      toast({
+        title: "PDF generation failed",
+        description: "Failed to generate PDFs. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGeneratingPDFs(false);
+    }
+  };
+
   return (
     <div className="bg-white rounded-3xl p-8 shadow-neo">
       <div className="text-center">
@@ -124,13 +174,22 @@ const SearchResults = ({ searchStrings, searchNames }: SearchResultsProps) => {
           </p>
         </div>
 
-        <div className="mb-6">
+        <div className="mb-6 flex gap-4 justify-center">
           <Button
             onClick={copyUrlsToClipboard}
-            className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg flex items-center gap-2 mx-auto"
+            className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg flex items-center gap-2"
           >
             <Copy className="w-4 h-4" />
             Copy All URLs
+          </Button>
+          
+          <Button
+            onClick={generatePDFsFromTabs}
+            disabled={isGeneratingPDFs}
+            className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-2 rounded-lg flex items-center gap-2 disabled:opacity-50"
+          >
+            <FileText className="w-4 h-4" />
+            {isGeneratingPDFs ? 'Generating PDFs...' : 'Create PDFs'}
           </Button>
         </div>
 
