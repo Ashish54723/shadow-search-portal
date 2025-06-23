@@ -30,8 +30,8 @@ const SearchNamesSection = ({
   onClearAll
 }: SearchNamesSectionProps) => {
   return (
-    <div className="bg-white rounded-3xl p-8 shadow-neo">
-      <h2 className="text-2xl font-semibold text-gray-800 mb-6">Search Names</h2>
+    <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 shadow-neo transition-colors duration-300">
+      <h2 className="text-2xl font-semibold text-gray-800 dark:text-white mb-6">Search Names</h2>
       
       <div className="space-y-6">
         <SingleNameInput

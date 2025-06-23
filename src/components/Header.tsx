@@ -2,12 +2,13 @@
 import React from 'react';
 import { Shield, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import ThemeToggle from './ThemeToggle';
 
 const Header = () => {
   const isAdminPage = window.location.pathname === '/admin';
 
   return (
-    <header className="bg-white shadow-neo-small border-b border-gray-100">
+    <header className="bg-white dark:bg-gray-900 shadow-neo-small border-b border-gray-100 dark:border-gray-800 transition-colors duration-300">
       <div className="container mx-auto px-4 py-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
@@ -27,11 +28,12 @@ const Header = () => {
           </div>
           
           <nav className="flex items-center space-x-4">
+            <ThemeToggle />
             {!isAdminPage ? (
               <Button
                 onClick={() => window.location.href = '/admin'}
                 variant="outline"
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 rounded-full shadow-neo-small hover:shadow-neo-small-hover transform hover:-translate-y-1 transition-all duration-300"
               >
                 <Shield className="w-4 h-4" />
                 Admin Dashboard
@@ -40,7 +42,7 @@ const Header = () => {
               <Button
                 onClick={() => window.location.href = '/'}
                 variant="outline"
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 rounded-full shadow-neo-small hover:shadow-neo-small-hover transform hover:-translate-y-1 transition-all duration-300"
               >
                 <Search className="w-4 h-4" />
                 Search Interface
