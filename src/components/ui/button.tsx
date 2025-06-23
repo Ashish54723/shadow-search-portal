@@ -6,19 +6,19 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-lg hover:shadow-xl transform hover:-translate-y-1",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl text-sm font-medium ring-offset-background transition-all duration-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-2xl hover:shadow-3xl transform hover:-translate-y-2 backdrop-blur-lg floating-element",
   {
     variants: {
       variant: {
-        default: "bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700",
+        default: "bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 dark:from-blue-600 dark:via-purple-600 dark:to-pink-600 dark:hover:from-blue-700 dark:hover:via-purple-700 dark:hover:to-pink-700",
         destructive:
-          "bg-gradient-to-r from-red-500 to-pink-600 text-white hover:from-red-600 hover:to-pink-700",
+          "bg-gradient-to-r from-red-500 to-pink-600 text-white hover:from-red-600 hover:to-pink-700 dark:from-red-600 dark:to-pink-700 dark:hover:from-red-700 dark:hover:to-pink-800",
         outline:
-          "border-2 border-gray-300 bg-white hover:bg-gray-50 hover:border-gray-400 text-gray-800",
+          "border-2 border-gray-300 bg-white/90 hover:bg-gray-50 hover:border-gray-400 text-gray-800 dark:border-gray-600 dark:bg-black/90 dark:text-white dark:hover:bg-gray-900 dark:hover:border-gray-500",
         secondary:
-          "bg-gradient-to-r from-gray-400 to-gray-600 text-white hover:from-gray-500 hover:to-gray-700",
-        ghost: "hover:bg-gradient-to-r hover:from-gray-100 hover:to-gray-200 text-gray-800",
-        link: "text-blue-600 underline-offset-4 hover:underline hover:text-blue-800",
+          "bg-gradient-to-r from-gray-400 to-gray-600 text-white hover:from-gray-500 hover:to-gray-700 dark:from-gray-600 dark:to-gray-800 dark:hover:from-gray-700 dark:hover:to-gray-900",
+        ghost: "hover:bg-gradient-to-r hover:from-gray-100 hover:to-gray-200 text-gray-800 dark:text-white dark:hover:from-gray-800 dark:hover:to-gray-900",
+        link: "text-blue-600 underline-offset-4 hover:underline hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300",
       },
       size: {
         default: "h-12 px-6 py-3",

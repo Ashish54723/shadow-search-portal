@@ -12,12 +12,12 @@ const ThemeToggle = () => {
       onClick={toggleTheme}
       variant="outline"
       size="icon"
-      className="rounded-full shadow-neo-small hover:shadow-neo-small-hover transition-all duration-300"
+      className="bg-white/90 dark:bg-black/90 backdrop-blur-lg border-2 border-gray-200 dark:border-gray-700 hover:border-yellow-400 dark:hover:border-blue-400 shadow-2xl hover:shadow-3xl transform hover:-translate-y-2 transition-all duration-500"
     >
       {isDarkMode ? (
-        <Sun className="w-4 h-4 text-yellow-500" />
+        <Sun className="w-5 h-5 text-yellow-500 drop-shadow-lg" />
       ) : (
-        <Moon className="w-4 h-4 text-blue-600" />
+        <Moon className="w-5 h-5 text-blue-600 drop-shadow-lg" />
       )}
     </Button>
   );
