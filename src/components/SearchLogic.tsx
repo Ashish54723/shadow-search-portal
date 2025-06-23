@@ -134,9 +134,31 @@ export const useSearchLogic = () => {
   };
 
   const performSearch = async () => {
+    // Auto-add current name if it exists and isn't already in the list
+    let finalSearchNames = [...searchNames];
+    if (currentName.trim() && !searchNames.includes(currentName.trim())) {
+      finalSearchNames = [...searchNames, currentName.trim()];
+      setSearchNames(finalSearchNames);
+      setCurrentName('');
+    }
+
+    // Auto-add bulk names if they exist
+    if (bulkNames.trim()) {
+      const names = bulkNames
+        .split(/[\n,;]+/)
+        .map(name => name.trim())
+        .filter(name => name && !finalSearchNames.includes(name));
+      
+      if (names.length > 0) {
+        finalSearchNames = [...finalSearchNames, ...names];
+        setSearchNames(finalSearchNames);
+        setBulkNames('');
+      }
+    }
+
     const allSearchStrings = getAllSearchStrings();
     
-    if (allSearchStrings.length === 0 && searchNames.length === 0) {
+    if (allSearchStrings.length === 0 && finalSearchNames.length === 0) {
       toast({
         title: "Search criteria required",
         description: "Please add at least one search name, or ask admin to add search strings.",
@@ -147,9 +169,9 @@ export const useSearchLogic = () => {
 
     setIsSearching(true);
     
-    if (searchNames.length > 0) {
+    if (finalSearchNames.length > 0) {
       try {
-        const nameInserts = searchNames.map(name => ({ name_value: name }));
+        const nameInserts = finalSearchNames.map(name => ({ name_value: name }));
         await supabase.from('search_names').insert(nameInserts);
       } catch (error) {
         console.error('Error saving search names:', error);
@@ -161,13 +183,13 @@ export const useSearchLogic = () => {
     setTimeout(() => {
       const searchResultData: SearchResultData = {
         searchStrings: allSearchStrings,
-        searchNames: searchNames
+        searchNames: finalSearchNames
       };
       
       setSearchResults(searchResultData);
       setIsSearching(false);
       
-      saveSearchToHistory(allSearchStrings, searchNames);
+      saveSearchToHistory(allSearchStrings, finalSearchNames);
       
       const totalLanguages = adminStrings.reduce((acc, str) => {
         return acc + Object.keys(str.translations || {}).length;
@@ -177,7 +199,7 @@ export const useSearchLogic = () => {
       
       toast({
         title: "Search prepared",
-        description: `Prepared Google searches using ${allSearchStrings.length} search terms across ${totalLanguages + adminStrings.length} languages with ${searchNames.length} names. ${operatorCount} strings contain search operators.`
+        description: `Prepared Google searches using ${allSearchStrings.length} search terms across ${totalLanguages + adminStrings.length} languages with ${finalSearchNames.length} names. ${operatorCount} strings contain search operators.`
       });
     }, 1000);
   };

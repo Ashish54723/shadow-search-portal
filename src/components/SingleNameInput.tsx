@@ -1,7 +1,5 @@
 
 import React from 'react';
-import { Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
 interface SingleNameInputProps {
@@ -10,11 +8,11 @@ interface SingleNameInputProps {
   onAddName: () => void;
 }
 
-const SingleNameInput = ({ currentName, setCurrentName, onAddName }: SingleNameInputProps) => {
+const SingleNameInput = ({ currentName, setCurrentName }: SingleNameInputProps) => {
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      onAddName();
+      // Just prevent default, the name will be auto-added when searching
     }
   };
 
@@ -25,19 +23,12 @@ const SingleNameInput = ({ currentName, setCurrentName, onAddName }: SingleNameI
         <div className="flex-1 relative">
           <Input
             type="text"
-            placeholder="Enter person/entity name and press Enter or click +"
+            placeholder="Enter person/entity name (will be added automatically when searching)"
             value={currentName}
             onChange={(e) => setCurrentName(e.target.value)}
             onKeyPress={handleKeyPress}
-            className="pr-12 rounded-2xl border-0 bg-gray-50 shadow-neo-inset focus:shadow-neo-inset-focus transition-all duration-200"
+            className="rounded-2xl border-0 bg-gray-50 shadow-neo-inset focus:shadow-neo-inset-focus transition-all duration-200"
           />
-          <Button
-            onClick={onAddName}
-            size="sm"
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 rounded-xl shadow-neo-small hover:shadow-neo-small-hover"
-          >
-            <Plus className="w-4 h-4" />
-          </Button>
         </div>
       </div>
     </div>
