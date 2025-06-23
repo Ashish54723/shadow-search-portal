@@ -15,16 +15,16 @@ const SearchButton = ({ onSearch, isSearching }: SearchButtonProps) => {
         onClick={onSearch}
         disabled={isSearching}
         size="lg"
-        className="px-12 py-4 text-lg rounded-2xl shadow-neo hover:shadow-neo-hover transition-all duration-300 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+        className="px-16 py-6 text-xl font-semibold bg-gradient-to-r from-emerald-500 via-blue-500 to-purple-600 hover:from-emerald-600 hover:via-blue-600 hover:to-purple-700 shadow-2xl hover:shadow-3xl transform hover:-translate-y-2 transition-all duration-500"
       >
         {isSearching ? (
-          <div className="flex items-center gap-2">
-            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+          <div className="flex items-center gap-3">
+            <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
             Searching...
           </div>
         ) : (
-          <div className="flex items-center gap-2">
-            <Search className="w-5 h-5" />
+          <div className="flex items-center gap-3">
+            <Search className="w-6 h-6" />
             Search Negative Media
           </div>
         )}
