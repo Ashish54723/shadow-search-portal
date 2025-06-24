@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -5,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Trash2, Plus, AlertCircle, Key } from 'lucide-react';
+import { Trash2, Plus, AlertCircle } from 'lucide-react';
 import { preserveSearchOperators, restoreSearchOperators, shouldTranslateString } from '@/utils/searchOperators';
 
 interface SearchString {
@@ -338,21 +339,6 @@ const AdminDashboard = () => {
     <div className="max-w-4xl mx-auto space-y-8">
       <div className="bg-white rounded-3xl p-8 shadow-neo">
         <h1 className="text-3xl font-bold text-gray-800 mb-8">Admin Dashboard</h1>
-        
-        {/* Default Login Credentials */}
-        <div className="mb-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <div className="flex items-center gap-2 mb-3">
-            <Key className="w-5 h-5 text-blue-600" />
-            <h3 className="text-lg font-semibold text-blue-800">Default Login Credentials</h3>
-          </div>
-          <div className="space-y-2 text-sm text-blue-700">
-            <p><strong>Email:</strong> admin@example.com</p>
-            <p><strong>Password:</strong> admin123</p>
-            <p className="text-xs text-blue-600 mt-2">
-              Note: These are default credentials for testing. Please change them in production.
-            </p>
-          </div>
-        </div>
         
         {/* Add New Search String */}
         <div className="space-y-4 mb-8">
