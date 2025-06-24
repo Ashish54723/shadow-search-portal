@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { ExternalLink, Search, Copy, FileText } from 'lucide-react';
 import { Button } from './ui/button';
@@ -23,38 +24,24 @@ const SearchResults = ({ searchStrings, searchNames }: SearchResultsProps) => {
     return createGoogleSearchUrl(combinedQuery);
   };
 
-  // Auto-open all search combinations when results are ready
+  // Auto-open search combinations when results are ready
   useEffect(() => {
     if (searchStrings.length > 0) {
       const searchUrls: string[] = [];
       
-      // Combined searches (string + all names)
+      // Only combine names with search strings (no individual name combinations)
       searchStrings.forEach(searchString => {
         const combinedUrl = createCombinedSearchUrl(searchString, searchNames);
         searchUrls.push(combinedUrl);
       });
       
-      // Individual string + name combinations
-      if (searchNames.length > 0) {
+      // Strings only (if no names provided)
+      if (searchNames.length === 0) {
         searchStrings.forEach(searchString => {
-          searchNames.forEach(name => {
-            const individualUrl = createGoogleSearchUrl(`${searchString} ${name}`);
-            searchUrls.push(individualUrl);
-          });
+          const stringOnlyUrl = createGoogleSearchUrl(searchString);
+          searchUrls.push(stringOnlyUrl);
         });
       }
-      
-      // Strings only
-      searchStrings.forEach(searchString => {
-        const stringOnlyUrl = createGoogleSearchUrl(searchString);
-        searchUrls.push(stringOnlyUrl);
-      });
-      
-      // Names only
-      searchNames.forEach(name => {
-        const nameOnlyUrl = createGoogleSearchUrl(name);
-        searchUrls.push(nameOnlyUrl);
-      });
       
       setAllSearchUrls(searchUrls);
       
@@ -68,23 +55,13 @@ const SearchResults = ({ searchStrings, searchNames }: SearchResultsProps) => {
   }, [searchStrings, searchNames]);
 
   const getTotalSearchCount = () => {
-    let count = 0;
-    
-    // Combined searches
-    count += searchStrings.length;
-    
-    // Individual combinations
     if (searchNames.length > 0) {
-      count += searchStrings.length * searchNames.length;
+      // Only count combined searches (strings + names)
+      return searchStrings.length;
+    } else {
+      // If no names, count individual strings
+      return searchStrings.length;
     }
-    
-    // Strings only
-    count += searchStrings.length;
-    
-    // Names only
-    count += searchNames.length;
-    
-    return count;
   };
 
   const copyUrlsToClipboard = async () => {
@@ -225,7 +202,10 @@ const SearchResults = ({ searchStrings, searchNames }: SearchResultsProps) => {
           <div className="flex items-center justify-center text-blue-700">
             <ExternalLink className="w-4 h-4 mr-2" />
             <span className="text-sm">
-              All search combinations have been opened in new browser tabs
+              {searchNames.length > 0 
+                ? "Search strings combined with all names have been opened in new browser tabs"
+                : "All search strings have been opened in new browser tabs"
+              }
             </span>
           </div>
         </div>

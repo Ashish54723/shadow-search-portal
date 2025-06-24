@@ -16,7 +16,7 @@ const SearchButton = ({ onSearch, isSearching }: SearchButtonProps) => {
           onClick={onSearch}
           disabled={isSearching}
           size="lg"
-          className="px-20 py-8 text-2xl font-bold bg-gradient-to-r from-emerald-400 via-blue-500 to-purple-600 hover:from-emerald-500 hover:via-blue-600 hover:to-purple-700 dark:from-emerald-500 dark:via-blue-600 dark:to-purple-700 dark:hover:from-emerald-600 dark:hover:via-blue-700 dark:hover:to-purple-800 shadow-3xl hover:shadow-4xl transform hover:-translate-y-3 transition-all duration-700 backdrop-blur-xl border-0"
+          className="px-20 py-8 text-2xl font-bold bg-gradient-to-r from-emerald-400 via-blue-500 to-purple-600 hover:from-emerald-500 hover:via-blue-600 hover:to-purple-700 shadow-3xl hover:shadow-4xl transform hover:-translate-y-3 transition-all duration-700 backdrop-blur-xl border-0"
         >
           {isSearching ? (
             <div className="flex items-center gap-4">
