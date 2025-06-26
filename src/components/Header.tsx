@@ -11,10 +11,10 @@ const Header = () => {
       <div className="container mx-auto px-4 py-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3 transform hover:scale-105 transition-transform duration-300">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-2xl hover:shadow-3xl transform hover:-translate-y-2 transition-all duration-500 floating-element">
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-2xl hover:shadow-3xl transform hover:-translate-y-2 transition-all duration-500 floating-element" style={{ animation: 'float 8s ease-in-out infinite' }}>
               <Search className="w-8 h-8 text-white" />
             </div>
-            <div className="floating-element">
+            <div className="floating-element" style={{ animation: 'float 8s ease-in-out infinite' }}>
               <h1 className="text-4xl font-bold tracking-tight">
                 <span className="text-blue-500 drop-shadow-lg">N</span>
                 <span className="text-red-500 drop-shadow-lg">S</span>
@@ -28,22 +28,24 @@ const Header = () => {
           
           <nav className="flex items-center space-x-4">
             {!isAdminPage ? (
-              <div className="floating-element">
+              <div className="floating-element" style={{ animation: 'float 8s ease-in-out infinite' }}>
                 <Button
                   onClick={() => window.location.href = '/admin'}
                   variant="outline"
                   className="flex items-center gap-2 bg-white/90 backdrop-blur-lg border-2 border-gray-200 hover:border-blue-400 text-gray-800 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 shadow-2xl hover:shadow-3xl transform hover:-translate-y-2 transition-all duration-500"
+                  style={{ animation: 'float 8s ease-in-out infinite' }}
                 >
                   <Shield className="w-4 h-4" />
                   Admin Dashboard
                 </Button>
               </div>
             ) : (
-              <div className="floating-element">
+              <div className="floating-element" style={{ animation: 'float 8s ease-in-out infinite' }}>
                 <Button
                   onClick={() => window.location.href = '/'}
                   variant="outline"
                   className="flex items-center gap-2 bg-white/90 backdrop-blur-lg border-2 border-gray-200 hover:border-blue-400 text-gray-800 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 shadow-2xl hover:shadow-3xl transform hover:-translate-y-2 transition-all duration-500"
+                  style={{ animation: 'float 8s ease-in-out infinite' }}
                 >
                   <Search className="w-4 h-4" />
                   Search Interface

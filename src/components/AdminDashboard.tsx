@@ -247,6 +247,7 @@ const AdminDashboard = () => {
             variant="destructive"
             size="sm"
             onClick={() => deleteSearchString(searchString.id)}
+            style={{ animation: 'float 8s ease-in-out infinite' }}
           >
             <Trash2 className="w-4 h-4" />
           </Button>
@@ -279,6 +280,7 @@ const AdminDashboard = () => {
                     variant="ghost"
                     size="sm"
                     onClick={() => removeTranslation(searchString.id, langCode)}
+                    style={{ animation: 'float 8s ease-in-out infinite' }}
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
@@ -326,6 +328,7 @@ const AdminDashboard = () => {
               onClick={() => addTranslation(searchString.id)}
               disabled={!selectedLanguage || !translationText.trim()}
               size="sm"
+              style={{ animation: 'float 8s ease-in-out infinite' }}
             >
               <Plus className="w-4 h-4" />
             </Button>
@@ -364,7 +367,11 @@ const AdminDashboard = () => {
               />
             </div>
             <div className="flex items-end">
-              <Button onClick={addSearchString} disabled={!newString.trim()}>
+              <Button 
+                onClick={addSearchString} 
+                disabled={!newString.trim()}
+                style={{ animation: 'float 8s ease-in-out infinite' }}
+              >
                 Add String
               </Button>
             </div>
