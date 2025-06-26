@@ -17,10 +17,8 @@ const SearchResults = ({ searchStrings, searchNames }: SearchResultsProps) => {
     return `https://www.google.com/search?q=${encodeURIComponent(query)}`;
   };
 
-  const createCombinedSearchUrl = (searchString: string, names: string[]) => {
-    const combinedQuery = names.length > 0 
-      ? `${searchString} (${names.join(' OR ')})`
-      : searchString;
+  const createCombinedSearchUrl = (searchString: string, name: string) => {
+    const combinedQuery = `${searchString} "${name}"`;
     return createGoogleSearchUrl(combinedQuery);
   };
 
@@ -29,14 +27,16 @@ const SearchResults = ({ searchStrings, searchNames }: SearchResultsProps) => {
     if (searchStrings.length > 0) {
       const searchUrls: string[] = [];
       
-      // Only combine names with search strings (no individual name combinations)
-      searchStrings.forEach(searchString => {
-        const combinedUrl = createCombinedSearchUrl(searchString, searchNames);
-        searchUrls.push(combinedUrl);
-      });
-      
-      // Strings only (if no names provided)
-      if (searchNames.length === 0) {
+      if (searchNames.length > 0) {
+        // Create combinations of each search string with each name individually
+        searchStrings.forEach(searchString => {
+          searchNames.forEach(name => {
+            const combinedUrl = createCombinedSearchUrl(searchString, name);
+            searchUrls.push(combinedUrl);
+          });
+        });
+      } else {
+        // If no names, just use search strings
         searchStrings.forEach(searchString => {
           const stringOnlyUrl = createGoogleSearchUrl(searchString);
           searchUrls.push(stringOnlyUrl);
@@ -56,8 +56,8 @@ const SearchResults = ({ searchStrings, searchNames }: SearchResultsProps) => {
 
   const getTotalSearchCount = () => {
     if (searchNames.length > 0) {
-      // Only count combined searches (strings + names)
-      return searchStrings.length;
+      // Count individual combinations (strings × names)
+      return searchStrings.length * searchNames.length;
     } else {
       // If no names, count individual strings
       return searchStrings.length;
@@ -203,7 +203,7 @@ const SearchResults = ({ searchStrings, searchNames }: SearchResultsProps) => {
             <ExternalLink className="w-4 h-4 mr-2" />
             <span className="text-sm">
               {searchNames.length > 0 
-                ? "Search strings combined with all names have been opened in new browser tabs"
+                ? `Each search string has been combined individually with each name (${searchStrings.length} × ${searchNames.length} = ${getTotalSearchCount()} combinations)`
                 : "All search strings have been opened in new browser tabs"
               }
             </span>
