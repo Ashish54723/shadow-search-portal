@@ -2,9 +2,11 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { SearchString } from '@/types/search';
+import { useStringBuckets } from './useStringBuckets';
 
 export const useAdminSearchStrings = () => {
   const [adminStrings, setAdminStrings] = useState<SearchString[]>([]);
+  const { getAllSearchStringsFromBuckets } = useStringBuckets();
 
   const fetchAdminSearchStrings = async () => {
     try {
@@ -30,21 +32,7 @@ export const useAdminSearchStrings = () => {
   };
 
   const getAllSearchStrings = () => {
-    const allStrings: string[] = [];
-    
-    adminStrings.forEach(adminString => {
-      allStrings.push(adminString.string_value);
-      
-      if (adminString.translations) {
-        Object.values(adminString.translations).forEach(translation => {
-          if (translation.trim()) {
-            allStrings.push(translation);
-          }
-        });
-      }
-    });
-    
-    return allStrings;
+    return getAllSearchStringsFromBuckets(adminStrings);
   };
 
   return {

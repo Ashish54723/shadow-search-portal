@@ -2,6 +2,7 @@
 import { useAdminSearchStrings } from '@/hooks/useAdminSearchStrings';
 import { useSearchNames } from '@/hooks/useSearchNames';
 import { useSearchExecution } from '@/hooks/useSearchExecution';
+import { useStringBuckets } from '@/hooks/useStringBuckets';
 
 export const useSearchLogic = () => {
   const {
@@ -30,6 +31,14 @@ export const useSearchLogic = () => {
     performSearch: executeSearch
   } = useSearchExecution();
 
+  const {
+    selectedBuckets,
+    setSelectedBuckets,
+    buckets,
+    fetchBuckets,
+    getSelectedBucketStrings
+  } = useStringBuckets();
+
   const performSearch = async () => {
     const allSearchStrings = getAllSearchStrings();
     await executeSearch(
@@ -40,7 +49,7 @@ export const useSearchLogic = () => {
       bulkNames,
       setBulkNames,
       allSearchStrings,
-      adminStrings
+      getSelectedBucketStrings(adminStrings)
     );
   };
 
@@ -53,7 +62,11 @@ export const useSearchLogic = () => {
     isSearching,
     searchResults,
     adminStrings,
+    selectedBuckets,
+    setSelectedBuckets,
+    buckets,
     fetchAdminSearchStrings,
+    fetchBuckets,
     addSearchName,
     addBulkNames,
     removeSearchName,

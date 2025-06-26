@@ -4,6 +4,7 @@ import SearchResults from './SearchResults';
 import AdminSearchStringsDisplay from './AdminSearchStringsDisplay';
 import SearchNamesSection from './SearchNamesSection';
 import SearchButton from './SearchButton';
+import StringBuckets from './StringBuckets';
 import { useSearchLogic } from './SearchLogic';
 
 const SearchInterface = () => {
@@ -16,7 +17,10 @@ const SearchInterface = () => {
     isSearching,
     searchResults,
     adminStrings,
+    selectedBuckets,
+    setSelectedBuckets,
     fetchAdminSearchStrings,
+    fetchBuckets,
     addSearchName,
     addBulkNames,
     removeSearchName,
@@ -27,11 +31,18 @@ const SearchInterface = () => {
 
   useEffect(() => {
     fetchAdminSearchStrings();
+    fetchBuckets();
   }, []);
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <AdminSearchStringsDisplay adminStrings={adminStrings} />
+
+      <StringBuckets
+        availableStrings={adminStrings}
+        selectedBuckets={selectedBuckets}
+        onBucketSelectionChange={setSelectedBuckets}
+      />
 
       <SearchNamesSection
         currentName={currentName}
