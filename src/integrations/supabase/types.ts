@@ -78,6 +78,30 @@ export type Database = {
         }
         Relationships: []
       }
+      string_buckets: {
+        Row: {
+          bucket_name: string
+          created_at: string
+          id: string
+          string_ids: string[]
+          updated_at: string
+        }
+        Insert: {
+          bucket_name: string
+          created_at?: string
+          id?: string
+          string_ids?: string[]
+          updated_at?: string
+        }
+        Update: {
+          bucket_name?: string
+          created_at?: string
+          id?: string
+          string_ids?: string[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
