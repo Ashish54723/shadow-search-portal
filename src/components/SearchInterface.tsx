@@ -7,7 +7,11 @@ import SearchButton from './SearchButton';
 import StringBuckets from './StringBuckets';
 import { useSearchLogic } from './SearchLogic';
 
-const SearchInterface = () => {
+interface SearchInterfaceProps {
+  userId: string;
+}
+
+const SearchInterface = ({ userId }: SearchInterfaceProps) => {
   const {
     searchNames,
     currentName,
@@ -27,7 +31,7 @@ const SearchInterface = () => {
     clearAllNames,
     copyNamesToClipboard,
     performSearch
-  } = useSearchLogic();
+  } = useSearchLogic(userId);
 
   useEffect(() => {
     fetchAdminSearchStrings();
@@ -42,6 +46,7 @@ const SearchInterface = () => {
         availableStrings={adminStrings}
         selectedBuckets={selectedBuckets}
         onBucketSelectionChange={setSelectedBuckets}
+        userId={userId}
       />
 
       <SearchNamesSection

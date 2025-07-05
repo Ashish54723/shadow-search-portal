@@ -4,7 +4,7 @@ import { useSearchNames } from '@/hooks/useSearchNames';
 import { useSearchExecution } from '@/hooks/useSearchExecution';
 import { useStringBuckets } from '@/hooks/useStringBuckets';
 
-export const useSearchLogic = () => {
+export const useSearchLogic = (userId?: string) => {
   const {
     adminStrings,
     fetchAdminSearchStrings,
@@ -37,7 +37,7 @@ export const useSearchLogic = () => {
     buckets,
     fetchBuckets,
     getSelectedBucketStrings
-  } = useStringBuckets();
+  } = useStringBuckets(userId);
 
   const performSearch = async () => {
     const allSearchStrings = getAllSearchStrings();

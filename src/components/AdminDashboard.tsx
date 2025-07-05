@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,14 +5,20 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Trash2, Plus, AlertCircle } from 'lucide-react';
+import { Trash2, Plus, AlertCircle, LogOut } from 'lucide-react';
 import { preserveSearchOperators, restoreSearchOperators, shouldTranslateString } from '@/utils/searchOperators';
+import UserManagement from './UserManagement';
 
 interface SearchString {
   id: string;
   string_value: string;
   translations: Record<string, string>;
   is_active: boolean;
+}
+
+interface AdminDashboardProps {
+  adminId: string;
+  onLogout: () => void;
 }
 
 const AVAILABLE_LANGUAGES = [
@@ -29,7 +34,8 @@ const AVAILABLE_LANGUAGES = [
   { code: 'ar', name: 'Arabic' }
 ];
 
-const AdminDashboard = () => {
+const AdminDashboard = ({ adminId, onLogout }: AdminDashboardProps) => {
+  const [activeTab, setActiveTab] = useState<'strings' | 'users'>('strings');
   const [searchStrings, setSearchStrings] = useState<SearchString[]>([]);
   const [newString, setNewString] = useState('');
   const [selectedLanguage, setSelectedLanguage] = useState('');
@@ -339,56 +345,96 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="max-w-6xl mx-auto space-y-8">
       <div className="bg-white rounded-3xl p-8 shadow-neo">
-        <h1 className="text-3xl font-bold text-gray-800 mb-8">Admin Dashboard</h1>
-        
-        {/* Add New Search String */}
-        <div className="space-y-4 mb-8">
-          <h2 className="text-xl font-semibold text-gray-700">Add New Search String</h2>
-          <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <h4 className="font-medium text-blue-800 mb-2">Search Operator Guidelines:</h4>
-            <ul className="text-sm text-blue-700 space-y-1">
-              <li>• Use AND, OR, NOT for boolean operations</li>
-              <li>• Use quotes for exact phrases: "exact phrase"</li>
-              <li>• These operators will be preserved during translation</li>
-              <li>• Example: "negative news" AND (scandal OR controversy)</li>
-            </ul>
-          </div>
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <Label htmlFor="newString">Search String</Label>
-              <Input
-                id="newString"
-                value={newString}
-                onChange={(e) => setNewString(e.target.value)}
-                placeholder="Enter search string with operators..."
-                onKeyDown={(e) => e.key === 'Enter' && addSearchString()}
-              />
-            </div>
-            <div className="flex items-end">
-              <Button 
-                onClick={addSearchString} 
-                disabled={!newString.trim()}
-                style={{ animation: 'float 8s ease-in-out infinite' }}
-              >
-                Add String
-              </Button>
-            </div>
-          </div>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
+          <Button
+            onClick={onLogout}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <LogOut className="w-4 h-4" />
+            Logout
+          </Button>
         </div>
 
-        {/* Search Strings List */}
-        <div className="space-y-6">
-          <h2 className="text-xl font-semibold text-gray-700">Search Strings</h2>
-          {searchStrings.length === 0 ? (
-            <p className="text-gray-500 text-center py-8">No search strings added yet.</p>
-          ) : (
-            <div className="space-y-4">
-              {searchStrings.map(renderSearchStringCard)}
-            </div>
-          )}
+        {/* Tab Navigation */}
+        <div className="flex space-x-1 mb-8 bg-gray-100 p-1 rounded-lg w-fit">
+          <button
+            onClick={() => setActiveTab('strings')}
+            className={`px-6 py-2 rounded-md text-sm font-medium transition-colors ${
+              activeTab === 'strings'
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            Search Strings
+          </button>
+          <button
+            onClick={() => setActiveTab('users')}
+            className={`px-6 py-2 rounded-md text-sm font-medium transition-colors ${
+              activeTab === 'users'
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            User Management
+          </button>
         </div>
+
+        {activeTab === 'strings' ? (
+          <>
+            {/* Add New Search String */}
+            <div className="space-y-4 mb-8">
+              <h2 className="text-xl font-semibold text-gray-700">Add New Search String</h2>
+              <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <h4 className="font-medium text-blue-800 mb-2">Search Operator Guidelines:</h4>
+                <ul className="text-sm text-blue-700 space-y-1">
+                  <li>• Use AND, OR, NOT for boolean operations</li>
+                  <li>• Use quotes for exact phrases: "exact phrase"</li>
+                  <li>• These operators will be preserved during translation</li>
+                  <li>• Example: "negative news" AND (scandal OR controversy)</li>
+                </ul>
+              </div>
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <Label htmlFor="newString">Search String</Label>
+                  <Input
+                    id="newString"
+                    value={newString}
+                    onChange={(e) => setNewString(e.target.value)}
+                    placeholder="Enter search string with operators..."
+                    onKeyDown={(e) => e.key === 'Enter' && addSearchString()}
+                  />
+                </div>
+                <div className="flex items-end">
+                  <Button 
+                    onClick={addSearchString} 
+                    disabled={!newString.trim()}
+                    style={{ animation: 'float 8s ease-in-out infinite' }}
+                  >
+                    Add String
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* Search Strings List */}
+            <div className="space-y-6">
+              <h2 className="text-xl font-semibold text-gray-700">Search Strings</h2>
+              {searchStrings.length === 0 ? (
+                <p className="text-gray-500 text-center py-8">No search strings added yet.</p>
+              ) : (
+                <div className="space-y-4">
+                  {searchStrings.map(renderSearchStringCard)}
+                </div>
+              )}
+            </div>
+          </>
+        ) : (
+          <UserManagement adminId={adminId} />
+        )}
       </div>
     </div>
   );

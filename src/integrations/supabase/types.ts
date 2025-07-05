@@ -9,6 +9,77 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      admin_users: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          is_active: boolean
+          password_hash: string
+          updated_at: string
+          username: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          password_hash: string
+          updated_at?: string
+          username: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          password_hash?: string
+          updated_at?: string
+          username?: string
+        }
+        Relationships: []
+      }
+      regular_users: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          email: string | null
+          id: string
+          is_active: boolean
+          password_hash: string
+          updated_at: string
+          username: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          password_hash: string
+          updated_at?: string
+          username: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          password_hash?: string
+          updated_at?: string
+          username?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "regular_users_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       search_history: {
         Row: {
           created_at: string
@@ -16,6 +87,7 @@ export type Database = {
           results_count: number | null
           search_names: string[]
           search_strings: string[]
+          user_id: string | null
         }
         Insert: {
           created_at?: string
@@ -23,6 +95,7 @@ export type Database = {
           results_count?: number | null
           search_names: string[]
           search_strings: string[]
+          user_id?: string | null
         }
         Update: {
           created_at?: string
@@ -30,26 +103,46 @@ export type Database = {
           results_count?: number | null
           search_names?: string[]
           search_strings?: string[]
+          user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "search_history_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "regular_users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       search_names: {
         Row: {
           created_at: string
           id: string
           name_value: string
+          user_id: string | null
         }
         Insert: {
           created_at?: string
           id?: string
           name_value: string
+          user_id?: string | null
         }
         Update: {
           created_at?: string
           id?: string
           name_value?: string
+          user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "search_names_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "regular_users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       search_strings: {
         Row: {
@@ -59,6 +152,7 @@ export type Database = {
           string_value: string
           translations: Json | null
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           created_at?: string
@@ -67,6 +161,7 @@ export type Database = {
           string_value: string
           translations?: Json | null
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           created_at?: string
@@ -75,8 +170,17 @@ export type Database = {
           string_value?: string
           translations?: Json | null
           updated_at?: string
+          user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "search_strings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "regular_users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       string_buckets: {
         Row: {
@@ -85,6 +189,7 @@ export type Database = {
           id: string
           string_ids: string[]
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           bucket_name: string
@@ -92,6 +197,7 @@ export type Database = {
           id?: string
           string_ids?: string[]
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           bucket_name?: string
@@ -99,15 +205,27 @@ export type Database = {
           id?: string
           string_ids?: string[]
           updated_at?: string
+          user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "string_buckets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "regular_users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      hash_password: {
+        Args: { password: string }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never

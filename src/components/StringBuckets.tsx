@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -27,9 +26,10 @@ interface StringBucketsProps {
   availableStrings: SearchString[];
   selectedBuckets: string[];
   onBucketSelectionChange: (buckets: string[]) => void;
+  userId: string;
 }
 
-const StringBuckets = ({ availableStrings, selectedBuckets, onBucketSelectionChange }: StringBucketsProps) => {
+const StringBuckets = ({ availableStrings, selectedBuckets, onBucketSelectionChange, userId }: StringBucketsProps) => {
   const [buckets, setBuckets] = useState<StringBucket[]>([]);
   const [newBucketName, setNewBucketName] = useState('');
   const [selectedStringsForNewBucket, setSelectedStringsForNewBucket] = useState<string[]>([]);
@@ -37,13 +37,14 @@ const StringBuckets = ({ availableStrings, selectedBuckets, onBucketSelectionCha
 
   useEffect(() => {
     fetchBuckets();
-  }, []);
+  }, [userId]);
 
   const fetchBuckets = async () => {
     try {
       const { data, error } = await supabase
         .from('string_buckets')
         .select('*')
+        .eq('user_id', userId)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -68,7 +69,8 @@ const StringBuckets = ({ availableStrings, selectedBuckets, onBucketSelectionCha
         .from('string_buckets')
         .insert([{
           bucket_name: newBucketName.trim(),
-          string_ids: selectedStringsForNewBucket
+          string_ids: selectedStringsForNewBucket,
+          user_id: userId
         }]);
 
       if (error) throw error;
@@ -97,7 +99,8 @@ const StringBuckets = ({ availableStrings, selectedBuckets, onBucketSelectionCha
       const { error } = await supabase
         .from('string_buckets')
         .delete()
-        .eq('id', bucketId);
+        .eq('id', bucketId)
+        .eq('user_id', userId);
 
       if (error) throw error;
 
