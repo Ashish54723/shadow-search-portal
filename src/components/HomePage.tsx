@@ -156,9 +156,9 @@ const HomePage = ({ onGetStarted }: HomePageProps) => {
               </p>
             </div>
             <div className="text-left p-6 bg-white rounded-2xl shadow-2xl floating-element transform hover:scale-105 transition-all duration-300" style={{ animation: 'float 8s ease-in-out infinite' }}>
-              <h4 className="text-xl font-semibold text-gray-800 mb-3">Crisis Management</h4>
+              <h4 className="text-xl font-semibold text-gray-800 mb-3">AML Compliance</h4>
               <p className="text-gray-600">
-                Monitor negative sentiment and potential crisis situations in real-time to enable rapid response and damage control.
+                Conduct adverse media searches for anti-money laundering compliance, screening entities against negative news and regulatory actions.
               </p>
             </div>
             <div className="text-left p-6 bg-white rounded-2xl shadow-2xl floating-element transform hover:scale-105 transition-all duration-300" style={{ animation: 'float 8s ease-in-out infinite' }}>
