@@ -11,16 +11,22 @@ interface StringBucket {
   updated_at: string;
 }
 
-export const useStringBuckets = () => {
+export const useStringBuckets = (userId?: string) => {
   const [selectedBuckets, setSelectedBuckets] = useState<string[]>([]);
   const [buckets, setBuckets] = useState<StringBucket[]>([]);
 
   const fetchBuckets = async () => {
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('string_buckets')
         .select('*')
         .order('created_at', { ascending: false });
+
+      if (userId) {
+        query = query.eq('user_id', userId);
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
       setBuckets(data || []);
