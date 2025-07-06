@@ -17,7 +17,68 @@ const HomePage = ({ onGetStarted }: HomePageProps) => {
           <div className="flex items-center justify-center">
             <div className="flex items-center space-x-3 transform hover:scale-105 transition-transform duration-300">
               <div className="w-16 h-16 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-2xl hover:shadow-3xl transform hover:-translate-y-2 transition-all duration-500 floating-element" style={{ animation: 'float 8s ease-in-out infinite' }}>
-                <Search className="w-8 h-8 text-white" />
+                <svg width="32" height="32" viewBox="0 0 32 32" className="text-white">
+                  {/* Magnifying glass body */}
+                  <circle 
+                    cx="12" 
+                    cy="12" 
+                    r="8" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2.5"
+                    className="animate-pulse"
+                  />
+                  {/* Magnifying glass handle */}
+                  <line 
+                    x1="18" 
+                    y1="18" 
+                    x2="26" 
+                    y2="26" 
+                    stroke="currentColor" 
+                    strokeWidth="2.5" 
+                    strokeLinecap="round"
+                    className="animate-pulse"
+                  />
+                  {/* Warning exclamation mark inside the glass */}
+                  <line 
+                    x1="12" 
+                    y1="8" 
+                    x2="12" 
+                    y2="13" 
+                    stroke="#ff4444" 
+                    strokeWidth="2" 
+                    strokeLinecap="round"
+                    style={{ animation: 'flash 2s ease-in-out infinite' }}
+                  />
+                  <circle 
+                    cx="12" 
+                    cy="16" 
+                    r="1" 
+                    fill="#ff4444"
+                    style={{ animation: 'flash 2s ease-in-out infinite' }}
+                  />
+                  {/* Negative indicator waves */}
+                  <circle 
+                    cx="12" 
+                    cy="12" 
+                    r="10" 
+                    fill="none" 
+                    stroke="#ff4444" 
+                    strokeWidth="1" 
+                    opacity="0.4"
+                    style={{ animation: 'ripple 3s ease-out infinite' }}
+                  />
+                  <circle 
+                    cx="12" 
+                    cy="12" 
+                    r="12" 
+                    fill="none" 
+                    stroke="#ff4444" 
+                    strokeWidth="0.5" 
+                    opacity="0.2"
+                    style={{ animation: 'ripple 3s ease-out infinite 0.5s' }}
+                  />
+                </svg>
               </div>
               <div className="floating-element" style={{ animation: 'float 8s ease-in-out infinite' }}>
                 <h1 className="text-4xl font-bold tracking-tight">
