@@ -14,7 +14,7 @@ const HomePage = ({ onGetStarted }: HomePageProps) => {
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-xl shadow-2xl border-b border-gray-100 transition-colors duration-300">
         <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-center">
+          <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3 transform hover:scale-105 transition-transform duration-300">
               <div className="w-16 h-16 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-2xl hover:shadow-3xl transform hover:-translate-y-2 transition-all duration-500 floating-element" style={{ animation: 'float 8s ease-in-out infinite' }}>
                 <svg width="32" height="32" viewBox="0 0 32 32" className="text-white">
@@ -90,6 +90,25 @@ const HomePage = ({ onGetStarted }: HomePageProps) => {
                   Negative Media Search
                 </p>
               </div>
+            </div>
+            
+            {/* Login/Signup Buttons */}
+            <div className="flex items-center space-x-3">
+              <Button
+                onClick={onGetStarted}
+                variant="outline"
+                size="sm"
+                className="shadow-lg hover:shadow-xl"
+              >
+                Login
+              </Button>
+              <Button
+                onClick={onGetStarted}
+                size="sm"
+                className="shadow-lg hover:shadow-xl"
+              >
+                Sign Up
+              </Button>
             </div>
           </div>
         </div>
