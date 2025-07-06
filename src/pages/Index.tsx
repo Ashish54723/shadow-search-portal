@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import SearchInterface from "@/components/SearchInterface";
 import UserLogin from "@/components/UserLogin";
-import Header from "@/components/Header";
+import HomePage from "@/components/HomePage";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 
@@ -10,6 +10,7 @@ const Index = () => {
   const [userId, setUserId] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showLogin, setShowLogin] = useState(false);
 
   useEffect(() => {
     // Check if user is already logged in (from sessionStorage)
@@ -32,8 +33,13 @@ const Index = () => {
   const handleLogout = () => {
     setUserId(null);
     setUsername(null);
+    setShowLogin(false);
     sessionStorage.removeItem('userId');
     sessionStorage.removeItem('username');
+  };
+
+  const handleGetStarted = () => {
+    setShowLogin(true);
   };
 
   if (isLoading) {
@@ -48,7 +54,10 @@ const Index = () => {
   }
 
   if (!userId || !username) {
-    return <UserLogin onLogin={handleLogin} />;
+    if (showLogin) {
+      return <UserLogin onLogin={handleLogin} />;
+    }
+    return <HomePage onGetStarted={handleGetStarted} />;
   }
 
   return (
