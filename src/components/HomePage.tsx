@@ -119,7 +119,7 @@ const HomePage = ({ onGetStarted }: HomePageProps) => {
         {/* Hero Section */}
         <div className="text-center mb-16">
           <h2 className="text-5xl font-bold text-gray-800 mb-6 floating-element" style={{ animation: 'float 8s ease-in-out infinite' }}>
-            Advanced Media Monitoring Platform
+            Adverse Media Search Platform
           </h2>
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
             Monitor and search through media content with powerful multi-string and multi-name search capabilities. 
