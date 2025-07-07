@@ -7,6 +7,7 @@ import { LogOut } from 'lucide-react';
 import UserManagement from './UserManagement';
 import SearchStringForm from './SearchStringForm';
 import SearchStringsList from './SearchStringsList';
+import SearchHistoryList from './SearchHistoryList';
 
 interface SearchString {
   id: string;
@@ -34,7 +35,7 @@ const AVAILABLE_LANGUAGES = [
 ];
 
 const AdminDashboard = ({ adminId, onLogout }: AdminDashboardProps) => {
-  const [activeTab, setActiveTab] = useState<'strings' | 'users'>('strings');
+  const [activeTab, setActiveTab] = useState<'strings' | 'users' | 'history'>('strings');
   const [searchStrings, setSearchStrings] = useState<SearchString[]>([]);
 
   useEffect(() => {
@@ -100,6 +101,16 @@ const AdminDashboard = ({ adminId, onLogout }: AdminDashboardProps) => {
           >
             User Management
           </button>
+          <button
+            onClick={() => setActiveTab('history')}
+            className={`px-6 py-2 rounded-md text-sm font-medium transition-colors ${
+              activeTab === 'history'
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            Search History
+          </button>
         </div>
 
         {activeTab === 'strings' ? (
@@ -111,8 +122,10 @@ const AdminDashboard = ({ adminId, onLogout }: AdminDashboardProps) => {
               onUpdate={fetchSearchStrings}
             />
           </>
-        ) : (
+        ) : activeTab === 'users' ? (
           <UserManagement adminId={adminId} />
+        ) : (
+          <SearchHistoryList />
         )}
       </div>
     </div>
