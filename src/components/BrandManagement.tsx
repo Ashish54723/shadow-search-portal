@@ -110,16 +110,17 @@ const BrandManagement = ({ adminId }: BrandManagementProps) => {
     }
 
     try {
-      const keywords = typeof editingBrand.keywords === 'string' 
-        ? editingBrand.keywords.split(',').map(k => k.trim()).filter(k => k.length > 0)
-        : editingBrand.keywords;
+      // Ensure keywords is always treated as string[] - fix for line 114 error
+      const keywordsArray = Array.isArray(editingBrand.keywords) 
+        ? editingBrand.keywords 
+        : (editingBrand.keywords as any as string).split(',').map(k => k.trim()).filter(k => k.length > 0);
 
       const { error } = await supabase
         .from('brands')
         .update({
           name: editingBrand.name.trim(),
           industry: editingBrand.industry?.trim() || null,
-          keywords: keywords,
+          keywords: keywordsArray,
           risk_level: editingBrand.risk_level,
           updated_at: new Date().toISOString()
         })
@@ -290,8 +291,11 @@ const BrandManagement = ({ adminId }: BrandManagementProps) => {
                         placeholder="Industry"
                       />
                       <Input
-                        value={Array.isArray(editingBrand.keywords) ? editingBrand.keywords.join(', ') : editingBrand.keywords}
-                        onChange={(e) => setEditingBrand({ ...editingBrand, keywords: e.target.value })}
+                        value={Array.isArray(editingBrand.keywords) ? editingBrand.keywords.join(', ') : ''}
+                        onChange={(e) => setEditingBrand({ 
+                          ...editingBrand, 
+                          keywords: e.target.value.split(',').map(k => k.trim()).filter(k => k.length > 0)
+                        })}
                         placeholder="Keywords (comma-separated)"
                       />
                       <Select value={editingBrand.risk_level} onValueChange={(value) => setEditingBrand({ ...editingBrand, risk_level: value })}>
