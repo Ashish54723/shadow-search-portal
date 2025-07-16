@@ -5,6 +5,7 @@ import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { LogOut } from 'lucide-react';
 import UserManagement from './UserManagement';
+import BrandManagement from './BrandManagement';
 import SearchStringForm from './SearchStringForm';
 import SearchStringsList from './SearchStringsList';
 import SearchHistoryList from './SearchHistoryList';
@@ -35,7 +36,7 @@ const AVAILABLE_LANGUAGES = [
 ];
 
 const AdminDashboard = ({ adminId, onLogout }: AdminDashboardProps) => {
-  const [activeTab, setActiveTab] = useState<'strings' | 'users' | 'history'>('strings');
+  const [activeTab, setActiveTab] = useState<'brands' | 'strings' | 'users' | 'history'>('brands');
   const [searchStrings, setSearchStrings] = useState<SearchString[]>([]);
 
   useEffect(() => {
@@ -82,6 +83,16 @@ const AdminDashboard = ({ adminId, onLogout }: AdminDashboardProps) => {
         {/* Tab Navigation */}
         <div className="flex space-x-1 mb-8 bg-gray-100 p-1 rounded-lg w-fit">
           <button
+            onClick={() => setActiveTab('brands')}
+            className={`px-6 py-2 rounded-md text-sm font-medium transition-colors ${
+              activeTab === 'brands'
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            Brand Management
+          </button>
+          <button
             onClick={() => setActiveTab('strings')}
             className={`px-6 py-2 rounded-md text-sm font-medium transition-colors ${
               activeTab === 'strings'
@@ -113,7 +124,9 @@ const AdminDashboard = ({ adminId, onLogout }: AdminDashboardProps) => {
           </button>
         </div>
 
-        {activeTab === 'strings' ? (
+        {activeTab === 'brands' ? (
+          <BrandManagement adminId={adminId} />
+        ) : activeTab === 'strings' ? (
           <>
             <SearchStringForm onStringAdded={fetchSearchStrings} />
             <SearchStringsList 

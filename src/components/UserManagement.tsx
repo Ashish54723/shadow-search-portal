@@ -3,14 +3,16 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Plus, Trash2, Users, Eye, EyeOff } from 'lucide-react';
+import { Plus, Trash2, Users, Shield } from 'lucide-react';
 
 interface RegularUser {
   id: string;
   username: string;
   email: string | null;
+  role: string;
   is_active: boolean;
   created_at: string;
 }
@@ -24,8 +26,9 @@ const UserManagement = ({ adminId }: UserManagementProps) => {
   const [newUsername, setNewUsername] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [newEmail, setNewEmail] = useState('');
+  const [newRole, setNewRole] = useState('viewer');
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [showPasswords, setShowPasswords] = useState<Record<string, boolean>>({});
+  const [editingUser, setEditingUser] = useState<RegularUser | null>(null);
 
   useEffect(() => {
     fetchUsers();
@@ -35,7 +38,7 @@ const UserManagement = ({ adminId }: UserManagementProps) => {
     try {
       const { data, error } = await supabase
         .from('regular_users')
-        .select('id, username, email, is_active, created_at')
+        .select('id, username, email, role, is_active, created_at')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -62,6 +65,7 @@ const UserManagement = ({ adminId }: UserManagementProps) => {
           username: newUsername.trim(),
           password_hash: await hashPassword(newPassword),
           email: newEmail.trim() || null,
+          role: newRole,
           created_by: adminId
         }]);
 
@@ -70,12 +74,13 @@ const UserManagement = ({ adminId }: UserManagementProps) => {
       setNewUsername('');
       setNewPassword('');
       setNewEmail('');
+      setNewRole('viewer');
       setShowCreateForm(false);
       fetchUsers();
 
       toast({
         title: "User created",
-        description: `User "${newUsername}" has been created successfully.`
+        description: `User "${newUsername}" has been created successfully with ${newRole} role.`
       });
     } catch (error: any) {
       console.error('Error creating user:', error);
@@ -84,6 +89,30 @@ const UserManagement = ({ adminId }: UserManagementProps) => {
         description: error.message?.includes('duplicate') 
           ? "Username already exists. Please choose a different username."
           : "Failed to create user.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const updateUserRole = async (userId: string, newRole: string, username: string) => {
+    try {
+      const { error } = await supabase
+        .from('regular_users')
+        .update({ role: newRole, updated_at: new Date().toISOString() })
+        .eq('id', userId);
+
+      if (error) throw error;
+
+      fetchUsers();
+      toast({
+        title: "Role updated",
+        description: `User "${username}" role has been updated to ${newRole}.`
+      });
+    } catch (error) {
+      console.error('Error updating user role:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update user role.",
         variant: "destructive"
       });
     }
@@ -123,11 +152,22 @@ const UserManagement = ({ adminId }: UserManagementProps) => {
     return data;
   };
 
-  const togglePasswordVisibility = (userId: string) => {
-    setShowPasswords(prev => ({
-      ...prev,
-      [userId]: !prev[userId]
-    }));
+  const getRoleColor = (role: string) => {
+    switch (role) {
+      case 'admin': return 'bg-red-100 text-red-800';
+      case 'analyst': return 'bg-blue-100 text-blue-800';
+      case 'viewer': return 'bg-green-100 text-green-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getRoleDescription = (role: string) => {
+    switch (role) {
+      case 'admin': return 'Full access to all features';
+      case 'analyst': return 'Can manage brands and search strings';
+      case 'viewer': return 'Can only view and search';
+      default: return 'Unknown role';
+    }
   };
 
   return (
@@ -184,6 +224,21 @@ const UserManagement = ({ adminId }: UserManagementProps) => {
                   placeholder="Enter email address"
                 />
               </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Role
+                </label>
+                <Select value={newRole} onValueChange={setNewRole}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="viewer">Viewer - {getRoleDescription('viewer')}</SelectItem>
+                    <SelectItem value="analyst">Analyst - {getRoleDescription('analyst')}</SelectItem>
+                    <SelectItem value="admin">Admin - {getRoleDescription('admin')}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               <div className="flex gap-2">
                 <Button onClick={createUser}>
                   Create User
@@ -195,6 +250,7 @@ const UserManagement = ({ adminId }: UserManagementProps) => {
                     setNewUsername('');
                     setNewPassword('');
                     setNewEmail('');
+                    setNewRole('viewer');
                   }}
                 >
                   Cancel
@@ -221,6 +277,12 @@ const UserManagement = ({ adminId }: UserManagementProps) => {
                         <h4 className="font-medium text-gray-800">
                           {user.username}
                         </h4>
+                        <div className="flex items-center gap-1">
+                          <Shield className="w-3 h-3 text-gray-500" />
+                          <span className={`px-2 py-1 rounded-full text-xs ${getRoleColor(user.role)}`}>
+                            {user.role.toUpperCase()}
+                          </span>
+                        </div>
                         <span className={`px-2 py-1 rounded-full text-xs ${
                           user.is_active 
                             ? 'bg-green-100 text-green-800' 
@@ -232,17 +294,35 @@ const UserManagement = ({ adminId }: UserManagementProps) => {
                       {user.email && (
                         <p className="text-sm text-gray-600">{user.email}</p>
                       )}
+                      <p className="text-xs text-gray-500 mb-2">
+                        {getRoleDescription(user.role)}
+                      </p>
                       <p className="text-xs text-gray-500">
                         Created: {new Date(user.created_at).toLocaleDateString()}
                       </p>
                     </div>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => deleteUser(user.id, user.username)}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <Select
+                        value={user.role}
+                        onValueChange={(newRole) => updateUserRole(user.id, newRole, user.username)}
+                      >
+                        <SelectTrigger className="w-32">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="viewer">Viewer</SelectItem>
+                          <SelectItem value="analyst">Analyst</SelectItem>
+                          <SelectItem value="admin">Admin</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => deleteUser(user.id, user.username)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
               ))}
